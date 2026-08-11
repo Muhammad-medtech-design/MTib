@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTib MedTech Portal</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #0f172a);
+            --text-color: var(--tg-theme-text-color, #f8fafc);
+            --card-bg: var(--tg-theme-secondary-bg-color, #1e293b);
+            --accent-color: var(--tg-theme-button-color, #0284c7);
+            --accent-text: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        .header p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .user-card {
+            background-color: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--accent-text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .card:active {
+            transform: scale(0.97);
+        }
+
+        .card-icon {
+            font-size: 24px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .card-desc {
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        .action-btn {
+            background-color: var(--accent-color);
+            color: var(--accent-text);
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>MTib MedTech Portal</h1>
+        <p>Системаи ташхис ва машварати тиббӣ</p>
+    </div>
+
+    <div class="user-card" id="userCard">
+        <div class="avatar" id="avatar">M</div>
+        <div>
+            <div style="font-weight: 600; font-size: 15px;" id="userName">Корбар</div>
+            <div style="font-size: 12px; opacity: 0.6;" id="userId">ID: ---</div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card" onclick="openModule('Ташхиси нейрологӣ')">
+            <span class="card-icon">🧠</span>
+            <span class="card-title">Нейрология</span>
+            <span class="card-desc">Протоколҳо ва санҷишҳо</span>
+        </div>
+        <div class="card" onclick="openModule('Луғати истилоҳот')">
+            <span class="card-icon">📚</span>
+            <span class="card-title">Маълумотнома</span>
+            <span class="card-desc">Базаи дониш ва истилоҳот</span>
+        </div>
+        <div class="card" onclick="openModule('Калкулятсияи тиббӣ')">
+            <span class="card-icon">🧮</span>
+            <span class="card-title">Калкуляттор</span>
+            <span class="card-desc">Шкалаҳо ва дозаҳо</span>
+        </div>
+        <div class="card" onclick="openModule('Машварат бо АИ')">
+            <span class="card-icon">⚡</span>
+            <span class="card-title">Ёрдамчии АИ</span>
+            <span class="card-desc">Таҳлили клиникӣ</span>
+        </div>
+    </div>
+
+    <button class="action-btn" onclick="sendDataToBot()">Оғози ташхиси нав</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Кушодани пурраи экран
+
+        // Аз Telegram гирифтани маълумоти корбар
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            document.getElementById('userName').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('userId').innerText = 'ID: ' + user.id;
+            document.getElementById('avatar').innerText = user.first_name.charAt(0).toUpperCase();
+        }
+
+        function openModule(name) {
+            tg.showAlert('Бахши "' + name + '" ба зудӣ фаъол мешавад!');
+        }
+
+        function sendDataToBot() {
+            tg.sendData(JSON.stringify({ action: "start_diagnosis", timestamp: Date.now() }));
+        }
+    </script>
+</body>
+</html>
