@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTib MedTech Portal</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #0f172a);
+            --text-color: var(--tg-theme-text-color, #f8fafc);
+            --card-bg: var(--tg-theme-secondary-bg-color, #1e293b);
+            --accent-color: var(--tg-theme-button-color, #0284c7);
+            --accent-text: var(--tg-theme-button-text-color, #ffffff);
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .view {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+        .header {
+            text-align: center;
+            padding: 14px;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            border-radius: 16px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+        }
+
+        .header h1 { margin: 0; font-size: 20px; }
+        .header p { margin: 4px 0 0; font-size: 12px; opacity: 0.9; }
+
+        .user-card {
+            background-color: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--accent-text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .card-icon { font-size: 24px; }
+        .card-title { font-size: 14px; font-weight: 600; }
+        .card-desc { font-size: 11px; opacity: 0.6; }
+
+        /* GCS Module Style */
+        .select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        select {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .result-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result-score {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .result-status {
+            font-size: 14px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: var(--accent-text);
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main View -->
+    <div id="mainView" class="view active">
+        <div class="header">
+            <h1>MTib MedTech Portal</h1>
+            <p>Системаи ташхис ва машварати тиббӣ</p>
+        </div>
+
+        <div class="user-card">
+            <div class="avatar" id="avatar">M</div>
+            <div>
+                <div style="font-weight: 600; font-size: 14px;" id="userName">Корбар</div>
+                <div style="font-size: 11px; opacity: 0.6;" id="userId">ID: ---</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card" onclick="showView('gcsView')">
+                <span class="card-icon">🧠</span>
+                <span class="card-title">Шкалаи Глазго</span>
+                <span class="card-desc">Арзёбии дараҷаи кома (GCS)</span>
+            </div>
+            <div class="card" onclick="tg.showAlert('Бахши Маълумотнома дар ҳоли таҳия аст.')">
+                <span class="card-icon">📚</span>
+                <span class="card-title">Маълумотнома</span>
+                <span class="card-desc">Базаи дониш ва истилоҳот</span>
+            </div>
+            <div class="card" onclick="tg.showAlert('Бахши Калкуляттор дар ҳоли таҳия аст.')">
+                <span class="card-icon">🧮</span>
+                <span class="card-title">Калкуляттор</span>
+                <span class="card-desc">Шкалаҳо ва дозаҳо</span>
+            </div>
+            <div class="card" onclick="tg.showAlert('Ёрдамчии АИ фаъол сохта мешавад.')">
+                <span class="card-icon">⚡</span>
+                <span class="card-title">Ёрдамчии АИ</span>
+                <span class="card-desc">Таҳлили клиникӣ</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- GCS Calculator View -->
+    <div id="gcsView" class="view">
+        <div class="header">
+            <h1>Шкалаи комаи Глазго (GCS)</h1>
+            <p>Арзёбии сатҳи ҳушёрии бемор</p>
+        </div>
+
+        <div class="select-group">
+            <label>1. Кушодани чашмҳо (E):</label>
+            <select id="gcsE" onchange="calculateGCS()">
+                <option value="4">4 - Худди худ (Spontaneous)</option>
+                <option value="3">3 - Ба овоз/фармон (To speech)</option>
+                <option value="2">2 - Ба дард (To pain)</option>
+                <option value="1">1 - Жавоб нест (None)</option>
+            </select>
+        </div>
+
+        <div class="select-group">
+            <label>2. Ҷавоби шифоҳӣ/нутқ (V):</label>
+            <select id="gcsV" onchange="calculateGCS()">
+                <option value="5">5 - Самтёбии дуруст (Oriented)</option>
+                <option value="4">4 - Нутқи омехта/ноаниқ (Confused)</option>
+                <option value="3">3 - Калимаҳои берабт (Inappropriate words)</option>
+                <option value="2">2 - Овозҳои нофаҳмо (Incomprehensible sounds)</option>
+                <option value="1">1 - Ҷавоб нест (None)</option>
+            </select>
+        </div>
+
+        <div class="select-group">
+            <label>3. Ҷавоби ҳаракатӣ (M):</label>
+            <select id="gcsM" onchange="calculateGCS()">
+                <option value="6">6 - Иҷрои фармонҳо (Obeys commands)</option>
+                <option value="5">5 - Локализатсияи дард (Localizes pain)</option>
+                <option value="4">4 - Кашидани аъзо аз дард (Withdrawal)</option>
+                <option value="3">3 - Флексияи паттологӣ / Декортикатсия (Flexion)</option>
+                <option value="2">2 - Экстензияи патологӣ / Децеребратсия (Extension)</option>
+                <option value="1">1 - Ҷавоб нест (None)</option>
+            </select>
+        </div>
+
+        <div class="result-box">
+            <div>Натиҷаи умумӣ:</div>
+            <div class="result-score" id="gcsScore">15 / 15</div>
+            <div class="result-status" id="gcsStatus">Ҳушёрии комил (Ягонагӣ)</div>
+        </div>
+
+        <button class="btn" onclick="sendGCSToBot()">Ирсоли натиҷа ба бот</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            document.getElementById('userName').innerText = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('userId').innerText = 'ID: ' + user.id;
+            document.getElementById('avatar').innerText = user.first_name.charAt(0).toUpperCase();
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            if (viewId !== 'mainView') {
+                tg.BackButton.show();
+                tg.BackButton.onClick(goBackMain);
+            } else {
+                tg.BackButton.hide();
+            }
+        }
+
+        function goBackMain() {
+            showView('mainView');
+        }
+
+        function calculateGCS() {
+            const e = parseInt(document.getElementById('gcsE').value);
+            const v = parseInt(document.getElementById('gcsV').value);
+            const m = parseInt(document.getElementById('gcsM').value);
+            const total = e + v + m;
+
+            document.getElementById('gcsScore').innerText = total + ' / 15';
+
+            let status = "";
+            if (total === 15) status = "Ҳушёрии комил";
+            else if (total >= 13) status = "Осеби сабуки мағзи сар (Mild TBI)";
+            else if (total >= 9) status = "Осеби миёнаи мағзи сар (Moderate TBI)";
+            else status = "Осеби вазнин / Кома (Severe TBI)";
+
+            document.getElementById('gcsStatus').innerText = status;
+        }
+
+        function sendGCSToBot() {
+            const score = document.getElementById('gcsScore').innerText;
+            const status = document.getElementById('gcsStatus').innerText;
+            tg.sendData(JSON.stringify({
+                module: "GCS",
+                score: score,
+                interpretation: status
+            }));
+        }
+    </script>
+</body>
+</html>
